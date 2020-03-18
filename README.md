@@ -1,1 +1,3 @@
 # ColorPaletteGenerator
+
+Wow, such empty.
