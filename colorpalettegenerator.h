@@ -28,8 +28,22 @@ private slots:
 
     void on_save_clicked();
 
+    void on_export_flcolor_clicked();
+
+    void on_reorder_clicked();
+
+    void on_overlay_clicked();
+
+    void on_sat_boost_valueChanged(int value);
+
+    void on_l_boost_valueChanged(int value);
+
+    void on_k_slider_valueChanged(int value);
+
 private:
     Ui::ColorPaletteGenerator *ui;
     QImage *src_large;
+    QColor reference_color[6];
+    bool reference_color_stored = false;
 };
 #endif // COLORPALETTEGENERATOR_H

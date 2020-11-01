@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>671</width>
-    <height>532</height>
+    <height>565</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,7 +58,7 @@
       <x>10</x>
       <y>340</y>
       <width>651</width>
-      <height>191</height>
+      <height>221</height>
      </rect>
     </property>
     <widget class="QLabel" name="b_2">
@@ -187,7 +187,7 @@
      <property name="geometry">
       <rect>
        <x>90</x>
-       <y>135</y>
+       <y>140</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -212,14 +212,14 @@
     <widget class="QPushButton" name="load">
      <property name="geometry">
       <rect>
-       <x>450</x>
+       <x>540</x>
        <y>130</y>
-       <width>101</width>
+       <width>111</width>
        <height>32</height>
       </rect>
      </property>
      <property name="text">
-      <string>Load ...</string>
+      <string>Load</string>
      </property>
     </widget>
     <widget class="QLabel" name="h_2">
@@ -239,7 +239,7 @@
      <property name="geometry">
       <rect>
        <x>-1</x>
-       <y>135</y>
+       <y>140</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -267,14 +267,14 @@
     <widget class="QPushButton" name="compute">
      <property name="geometry">
       <rect>
-       <x>450</x>
-       <y>160</y>
-       <width>201</width>
+       <x>440</x>
+       <y>130</y>
+       <width>101</width>
        <height>32</height>
       </rect>
      </property>
      <property name="text">
-      <string>Generate Palette</string>
+      <string>Generate</string>
      </property>
     </widget>
     <widget class="QLabel" name="h_3">
@@ -294,7 +294,7 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>135</y>
+       <y>140</y>
        <width>100</width>
        <height>20</height>
       </rect>
@@ -303,46 +303,196 @@
       <string>Sample 3</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="skip_darkest">
      <property name="geometry">
       <rect>
-       <x>290</x>
-       <y>135</y>
-       <width>161</width>
+       <x>0</x>
+       <y>190</y>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>Skip darkest shade</string>
+      <string>Skip darkest cluster</string>
      </property>
      <property name="checked">
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>165</y>
-       <width>441</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>To get the best result, try 'Generate Palette' a few times.</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="save">
      <property name="geometry">
       <rect>
-       <x>550</x>
-       <y>130</y>
+       <x>540</x>
+       <y>160</y>
+       <width>111</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save Picture</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="export_flcolor">
+     <property name="geometry">
+      <rect>
+       <x>540</x>
+       <y>190</y>
+       <width>111</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Export .flcolor</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="reorder">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>160</y>
        <width>101</width>
        <height>32</height>
       </rect>
      </property>
      <property name="text">
-      <string>Save ...</string>
+      <string>Reorder</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="skip_lightest">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>165</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Skip lightest cluster</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="overlay">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>190</y>
+       <width>101</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Overlay on</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="sat_boost">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>190</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>2000</number>
+     </property>
+     <property name="value">
+      <number>1000</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::NoTicks</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="sat_boost_val">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>170</y>
+       <width>151</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>S-scaling: 1.000</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="l_boost">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>150</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>2000</number>
+     </property>
+     <property name="value">
+      <number>1000</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::NoTicks</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="l_boost_val">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>130</y>
+       <width>151</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>L-scaling: 1.000</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="k_value">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>170</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>K: 8</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="k_slider">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>190</y>
+       <width>111</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>8</number>
+     </property>
+     <property name="maximum">
+      <number>14</number>
+     </property>
+     <property name="value">
+      <number>8</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::NoTicks</enum>
      </property>
     </widget>
    </widget>

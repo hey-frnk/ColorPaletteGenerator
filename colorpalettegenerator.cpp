@@ -52,7 +52,7 @@ void ColorPaletteGenerator::on_compute_clicked()
     serialized_data.convertTo(serialized_data, CV_32F);
 
     // Perform k-Means
-    int k = rand() % 4 + 8; // Random number between 8 and 11
+    int k = ui->k_slider->value(); // Random number between 8 and 11
     std::vector<int> labels;
     cv::Mat3f centers;
     // cv::kmeans(serialized_data, k, labels, cv::TermCriteria(), 1, cv::KMEANS_PP_CENTERS, centers);
@@ -74,7 +74,8 @@ void ColorPaletteGenerator::on_compute_clicked()
     ui->clustered->setPixmap(ASM::cvMatToQPixmap(source_img));
 
     // Keep the most unique colors by iteratively removing the most similar centers
-    bool remove_darkest_color = ui->checkBox->isChecked();
+    bool remove_darkest_color = ui->skip_darkest->isChecked();
+    bool remove_lightest_color = ui->skip_lightest->isChecked();
     struct c_dist { cv::Vec3f c; double dist; size_t a, b; };
     for(int i = 0; i < k - 6 - remove_darkest_color; ++i) {
         // Point distance
@@ -106,17 +107,12 @@ void ColorPaletteGenerator::on_compute_clicked()
         {ui->b_1, ui->h_1}, {ui->b_2, ui->h_2}, {ui->b_3, ui->h_3},
         {ui->b_4, ui->h_4}, {ui->b_5, ui->h_5}, {ui->b_6, ui->h_6}
     };
-    const int p = 0; // Padding
+    int p = remove_lightest_color; // Padding
     for(int i = 0; i < 6; ++i) {
         // Set back color of label. Lazy ass way to show the colors
-        std::stringstream back_clr;
-        back_clr << centers.at<float>(i + p, 0) << "," << centers.at<float>(i + p, 1) << ", " << centers.at<float>(i + p, 2);
-        palette[i][0]->setStyleSheet(QString::fromStdString("background-color: rgb(" + back_clr.str() + ");"));
-
-        // Hex color!
-        char hex_clr[8] = {0}; // #CCCCCC\0
-        sprintf(hex_clr, "#%02hhX%02hhX%02hhX", (uint8_t)centers.at<float>(i + p, 0), (uint8_t)centers.at<float>(i + p, 1), (uint8_t)centers.at<float>(i + p, 2));
-        palette[i][1]->setText(QString::fromLatin1(hex_clr));
+        QColor clr((uint8_t)centers.at<float>(i + p, 0), (uint8_t)centers.at<float>(i + p, 1), (uint8_t)centers.at<float>(i + p, 2));
+        palette[i][0]->setStyleSheet(QString("background-color:" + clr.name() + ";"));
+        palette[i][1]->setText(clr.name().toUpper());
     }
 }
 
@@ -183,4 +179,102 @@ void ColorPaletteGenerator::on_save_clicked()
     QImage q_output_image(ASM::cvMatToQImage(output_image));
     q_output_image.save(output_image_path);
     // cv::imwrite(std::string(output_image_path.toLatin1().data()), output_image);
+}
+
+void ColorPaletteGenerator::on_export_flcolor_clicked()
+{
+    // Export to
+    QString file_path = QFileDialog::getSaveFileName(this, "Save custom color", QDir::homePath(), "Fluorescence Custom Color File (*.flclr)");
+    if(file_path.isEmpty()) return;
+
+    QColor palette[6] = {
+        QColor(ui->h_1->text()), QColor(ui->h_2->text()), QColor(ui->h_3->text()),
+        QColor(ui->h_4->text()), QColor(ui->h_5->text()), QColor(ui->h_6->text())
+    };
+
+    QFile save_file(file_path);
+    save_file.open(QIODevice::WriteOnly);
+    QDataStream output_stream(&save_file);
+    for(QColor c : palette) {
+        c.setHslF(c.hueF(), std::pow(c.hslSaturationF(), 0.2), std::pow(c.lightnessF(), 1.5));
+        output_stream << c;
+    }
+    for(volatile QColor c : palette) output_stream << (quint8)0; // QString("x%1").arg((uint8_t)c, 2, 16, QChar('0'));
+
+    save_file.close();
+}
+
+void ColorPaletteGenerator::on_reorder_clicked()
+{
+    QColor palette[6] = {
+        QColor(ui->h_1->text()), QColor(ui->h_2->text()), QColor(ui->h_3->text()),
+        QColor(ui->h_4->text()), QColor(ui->h_5->text()), QColor(ui->h_6->text())
+    };
+    // Shuffle
+    std::random_shuffle(palette, palette + 6);
+
+    QLabel *re_palette[6][2] = {
+        {ui->b_1, ui->h_1}, {ui->b_2, ui->h_2}, {ui->b_3, ui->h_3},
+        {ui->b_4, ui->h_4}, {ui->b_5, ui->h_5}, {ui->b_6, ui->h_6}
+    };
+    for(int i = 0; i < 6; ++i) {
+        // Set back color of label. Lazy ass way to show the colors
+        re_palette[i][0]->setStyleSheet(QString("background-color:" + palette[i].name() + ";"));
+        re_palette[i][1]->setText(palette[i].name().toUpper());
+    }
+}
+
+void ColorPaletteGenerator::on_overlay_clicked()
+{
+    QLabel *re_palette[6][2] = {
+        {ui->b_1, ui->h_1}, {ui->b_2, ui->h_2}, {ui->b_3, ui->h_3},
+        {ui->b_4, ui->h_4}, {ui->b_5, ui->h_5}, {ui->b_6, ui->h_6}
+    };
+
+    if(!reference_color_stored) {
+        // Backup reference
+        QColor reference_color_tmp[6] = {
+            QColor(ui->h_1->text()), QColor(ui->h_2->text()), QColor(ui->h_3->text()),
+            QColor(ui->h_4->text()), QColor(ui->h_5->text()), QColor(ui->h_6->text())
+        };
+        for(int i = 0; i < 6; ++i) {
+            // Set back color of label. Lazy ass way to show the colors
+            reference_color[i] = reference_color_tmp[i];
+            QColor new_color = reference_color_tmp[i];
+
+            new_color.setHslF(
+                        new_color.hueF(),
+                        std::pow(new_color.hslSaturationF(), (2000.0f - ui->sat_boost->value()) / 1000.0f),
+                        std::pow(new_color.lightnessF(), (2000.0f - ui->l_boost->value()) / 1000.0f)
+                        );
+            re_palette[i][0]->setStyleSheet(QString("background-color:" + new_color.name() + ";"));
+            re_palette[i][1]->setText(new_color.name().toUpper());
+        }
+        reference_color_stored = true;
+        ui->overlay->setText("Overlay Off");
+    } else {
+        // Restore reference
+        for(int i = 0; i < 6; ++i) {
+            // Set back color of label. Lazy ass way to show the colors
+            re_palette[i][0]->setStyleSheet(QString("background-color:" + reference_color[i].name() + ";"));
+            re_palette[i][1]->setText(reference_color[i].name().toUpper());
+        }
+        reference_color_stored = false;
+        ui->overlay->setText("Overlay On");
+    }
+}
+
+void ColorPaletteGenerator::on_sat_boost_valueChanged(int value)
+{
+    ui->sat_boost_val->setText("S-scaling: " + QString("%1").arg((float)value / 1000.0f));
+}
+
+void ColorPaletteGenerator::on_l_boost_valueChanged(int value)
+{
+    ui->l_boost_val->setText("L-scaling: " + QString("%1").arg((float)value / 1000.0f));
+}
+
+void ColorPaletteGenerator::on_k_slider_valueChanged(int value)
+{
+    ui->k_value->setText("K: " + QString("%1").arg(value));
 }
